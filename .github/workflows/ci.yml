@@ -46,7 +46,7 @@ jobs:
       - run: pnpm audit --audit-level=high || true
 
   agent-desk-release-candidate:
-    if: github.ref == 'refs/heads/agent-desk-remote-ci-20260727'
+    if: github.ref == 'refs/heads/agent-desk-remote-ci-20260727' || (github.event_name == 'pull_request' && github.head_ref == 'agent-desk-remote-ci-20260727')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
