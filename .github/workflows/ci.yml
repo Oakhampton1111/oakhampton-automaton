@@ -44,3 +44,49 @@ jobs:
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level=high || true
+
+  agent-desk-release-candidate:
+    if: github.ref == 'refs/heads/agent-desk-remote-ci-20260727'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm exec vitest run --pool=forks --maxWorkers=1
+      - run: pnpm run build
+      - run: python3 visibility-site/scripts/build_visibility.py
+      - run: python3 visibility-site/scripts/validate_site.py
+      - name: Record release hashes
+        run: |
+          mkdir -p release-evidence
+          sha256sum \
+            dist/commerce/health-server.js \
+            dist/commerce/agent-desk-offers.js \
+            dist/commerce/agent-desk-offers.json \
+            visibility-site/public/agent-desk/index.html \
+            visibility-site/public/assets/concierge.js \
+            visibility-site/public/pricing.json \
+            > release-evidence/SHA256SUMS
+          git rev-parse HEAD > release-evidence/COMMIT_SHA
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent-desk-release-candidate
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            dist/commerce/health-server.js
+            dist/commerce/health-server.js.map
+            dist/commerce/health-server.d.ts
+            dist/commerce/health-server.d.ts.map
+            dist/commerce/agent-desk-offers.js
+            dist/commerce/agent-desk-offers.js.map
+            dist/commerce/agent-desk-offers.d.ts
+            dist/commerce/agent-desk-offers.d.ts.map
+            dist/commerce/agent-desk-offers.json
+            visibility-site/public
+            release-evidence
