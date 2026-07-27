@@ -36,6 +36,8 @@ import { prettySink } from "./observability/pretty-sink.js";
 import { bootstrapTopup } from "./conway/topup.js";
 import { randomUUID } from "crypto";
 import { keccak256, toHex } from "viem";
+import { getEconomicShadowStatus, runEconomicShadowDemo } from "./economic/shadow-cli.js";
+import { getIntegrationHealth, getIntegrationReadiness, runConfiguredSourceDryRun, runIntegrationStagingDemo, runPublicBacktest, runPublicCorpusReport } from "./integrations/cli.js";
 
 const logger = createLogger("main");
 const VERSION = "0.2.1";
@@ -63,6 +65,14 @@ Usage:
   automaton --init         Initialize wallet and config directory
   automaton --provision    Provision Conway API key via SIWE
   automaton --status       Show current automaton status
+  automaton --economic-shadow-demo    Run one synthetic governed economic experiment
+  automaton --economic-shadow-status  Verify evidence and show shadow graduation status
+  automaton --integration-health       Show staging integration safeguards
+  automaton --integration-readiness    Check configuration without revealing secrets
+  automaton --integration-staging-demo Run a synthetic multi-integration staging cycle
+  automaton --integration-source-dry-run Fetch configured sources without external actions
+  automaton --integration-backtest      Tune policy on public-data-derived edge cases
+  automaton --integration-corpus-report Analyze the private redacted public issue corpus
   automaton --version      Show version
   automaton --help         Show this help
 
@@ -71,6 +81,46 @@ Environment:
   CONWAY_API_KEY           Conway API key (overrides config)
   OLLAMA_BASE_URL          Ollama base URL (overrides config, e.g. http://localhost:11434)
 `);
+    process.exit(0);
+  }
+
+  if (args.includes("--economic-shadow-demo")) {
+    logger.info(JSON.stringify(runEconomicShadowDemo(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--economic-shadow-status")) {
+    logger.info(JSON.stringify(getEconomicShadowStatus(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--integration-readiness")) {
+    logger.info(JSON.stringify(getIntegrationReadiness(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--integration-health")) {
+    logger.info(JSON.stringify(getIntegrationHealth(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--integration-corpus-report")) {
+    logger.info(JSON.stringify(runPublicCorpusReport(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--integration-backtest")) {
+    logger.info(JSON.stringify(runPublicBacktest(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--integration-source-dry-run")) {
+    logger.info(JSON.stringify(await runConfiguredSourceDryRun(), null, 2));
+    process.exit(0);
+  }
+
+  if (args.includes("--integration-staging-demo")) {
+    logger.info(JSON.stringify(await runIntegrationStagingDemo(), null, 2));
     process.exit(0);
   }
 

@@ -183,6 +183,20 @@ describe("Authority Rules", () => {
       expect(decision.reasonCode).toBe("EXTERNAL_DANGEROUS_TOOL");
     });
 
+    it("keeps inbox input at external authority", () => {
+      const rules = createAuthorityRules();
+      const engine = new PolicyEngine(db, rules);
+      const tool = createMockTool({
+        name: "spawn_child",
+        riskLevel: "dangerous",
+        category: "replication",
+      });
+
+      const decision = engine.evaluate(createRequest(tool, {}, "inbox"));
+      expect(decision.action).toBe("deny");
+      expect(decision.authorityLevel).toBe("external");
+    });
+
     it("blocks fund_child from external input", () => {
       const rules = createAuthorityRules();
       const engine = new PolicyEngine(db, rules);

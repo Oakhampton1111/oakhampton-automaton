@@ -1,0 +1,2 @@
+import {describe,expect,it} from "vitest";import {PlatformRegistry} from "../commerce/platform-registry.js";
+describe("crypto opportunity sources",()=>{it("registers discovery-first boards without autonomous submission",()=>{const r=new PlatformRegistry();for(const id of ["web3-career","crypto-jobs","blockchain-jobs-board","satoshi-jobs","coinbase-bounties","bounties-sh"]){const p=r.get(id);expect(p.modes.some(x=>x==="bid"||x==="bounty")).toBe(true);expect(p.automatedSubmission).not.toBe("allowed");}});});

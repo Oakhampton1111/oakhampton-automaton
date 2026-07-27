@@ -65,6 +65,8 @@ import { createWorkerInferenceBridge } from "./worker-inference-bridge.js";
 import { ProviderRegistry } from "../inference/provider-registry.js";
 import { UnifiedInferenceClient } from "../inference/inference-client.js";
 import { isIdleOnlyTool } from "./idle-only-tools.js";
+import { createConwayClient } from "../conway/client.js";
+import { SpendTracker } from "./spend-tracker.js";
 
 const logger = createLogger("loop");
 const MAX_TOOL_CALLS_PER_TURN = 10;
@@ -96,14 +98,27 @@ export async function runAgentLoop(
   const { identity, config, db, conway, inference, social, skills, policyEngine, spendTracker, onStateChange, onTurnComplete, ollamaBaseUrl } =
     options;
 
+  if (config.securityConfig?.profile === "hardened" && !policyEngine) {
+    throw new Error("Hardened mode requires an initialized policy engine");
+  }
+
   const builtinTools = createBuiltinTools(identity.sandboxId);
   const installedTools = loadInstalledTools(db);
   const tools = [...builtinTools, ...installedTools];
+  const executionSandboxId = config.securityConfig?.executionSandboxId?.trim();
+  const executionConway = executionSandboxId && executionSandboxId !== config.sandboxId.trim()
+    ? createConwayClient({
+        apiUrl: config.conwayApiUrl,
+        apiKey: config.conwayApiKey,
+        sandboxId: executionSandboxId,
+      })
+    : undefined;
   const toolContext: ToolContext = {
     identity,
     config,
     db,
     conway,
+    executionConway,
     inference,
     social,
   };
@@ -129,7 +144,10 @@ export async function runAgentLoop(
   let orchestrator: Orchestrator | undefined;
   let workerPool: LocalWorkerPool | undefined;
 
-  if (hasTable(db.raw, "goals")) {
+  const orchestrationEnabled =
+    config.securityConfig?.profile === "legacy" ||
+    config.securityConfig?.allowChildReplication === true;
+  if (hasTable(db.raw, "goals") && orchestrationEnabled) {
     try {
       planModeController = new PlanModeController(db.raw);
 
@@ -246,7 +264,7 @@ export async function runAgentLoop(
               const is402 = sandboxError?.status === 402 ||
                 sandboxError?.message?.includes("INSUFFICIENT_CREDITS");
 
-              if (is402) {
+              if (is402 && config.securityConfig?.allowAgentFinancialActions === true) {
                 const SANDBOX_TOPUP_COOLDOWN_MS = 60_000;
                 const lastAttempt = db.getKV("last_sandbox_topup_attempt");
                 const cooldownExpired = !lastAttempt ||
@@ -301,8 +319,17 @@ export async function runAgentLoop(
                 }
               }
 
-              // Conway sandbox unavailable — fall back to local worker
-              logger.info("Conway sandbox unavailable, spawning local worker", {
+              // In hardened mode, never fall back from a remote sandbox to
+              // an in-process worker with access to control-plane memory.
+              if (config.securityConfig?.profile !== "legacy") {
+                logger.warn("Conway sandbox unavailable; hardened mode refused local worker fallback", {
+                  taskId: task.id,
+                  error: sandboxError instanceof Error ? sandboxError.message : String(sandboxError),
+                });
+                return null;
+              }
+
+              logger.info("Conway sandbox unavailable, spawning legacy local worker", {
                 taskId: task.id,
                 error: sandboxError instanceof Error ? sandboxError.message : String(sandboxError),
               });
@@ -421,7 +448,9 @@ export async function runAgentLoop(
               return `[Message from ${from.content}]: ${content.content}`;
             })
             .join("\n\n");
-          pendingInput = { content: formatted, source: "agent" };
+          // Preserve immutable low-authority provenance after sanitisation.
+          // Content filtering must never promote an external message to agent authority.
+          pendingInput = { content: formatted, source: "inbox" };
         }
       }
 
@@ -658,17 +687,18 @@ export async function runAgentLoop(
 
           log(config, `[TOOL] ${tc.function.name}(${JSON.stringify(args).slice(0, 100)})`);
 
+          const effectiveSpendTracker = spendTracker ?? new SpendTracker(db.raw);
           const result = await executeTool(
             tc.function.name,
             args,
             tools,
             toolContext,
             policyEngine,
-            spendTracker ? {
+            {
               inputSource: currentInputSource,
               turnToolCallCount: turn.toolCalls.filter(t => t.name === "transfer_credits").length,
-              sessionSpend: spendTracker,
-            } : undefined,
+              sessionSpend: effectiveSpendTracker,
+            },
           );
 
           // Override the ID to match the inference call's ID

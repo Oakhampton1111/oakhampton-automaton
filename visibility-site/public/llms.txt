@@ -1,0 +1,40 @@
+# Oakhampton Agent Desk
+> Production automation and operational engineering supplied by Oakhampton Capital Pty Ltd (ABN 58 684 868 915), Brisbane, Australia.
+
+## Start
+- [Agent Desk and secure checkout](https://www.oakhampton.ai/automation-services/agent-desk/)
+- [Machine-readable pricing](https://www.oakhampton.ai/automation-services/pricing.json)
+- [Operating product evidence](https://www.oakhampton.ai/automation-services/operating-examples/)
+- [Capability walkthroughs](https://www.oakhampton.ai/automation-services/walkthroughs/)
+
+## Services
+- [Production Automation Diagnosis](https://www.oakhampton.ai/automation-services/automation-diagnosis/): AUD 495; credited to an approved build started within 60 days. [Markdown](https://www.oakhampton.ai/automation-services/services/automation-diagnosis.md)
+- [Production Workflow Repair](https://www.oakhampton.ai/automation-services/workflow-repair/): AUD 995; one bounded repair; GST included. [Markdown](https://www.oakhampton.ai/automation-services/services/workflow-repair.md)
+- [OpenClaw Production Recovery](https://www.oakhampton.ai/automation-services/openclaw-deployment/): AUD 995; one bounded recovery; GST included. [Markdown](https://www.oakhampton.ai/automation-services/services/openclaw-deployment.md)
+- [Document Automation Pilot](https://www.oakhampton.ai/automation-services/document-automation/): AUD 1,495; up to three agreed layouts and 100 sample pages. [Markdown](https://www.oakhampton.ai/automation-services/services/document-automation.md)
+- [API Integration Pilot](https://www.oakhampton.ai/automation-services/api-integration/): AUD 1,495; two systems and one primary data flow. [Markdown](https://www.oakhampton.ai/automation-services/services/api-integration.md)
+- [Custom Agent Design and Prototype](https://www.oakhampton.ai/automation-services/custom-agent/): AUD 1,995; operating design, prototype and evaluation. [Markdown](https://www.oakhampton.ai/automation-services/services/custom-agent.md)
+- [Recurring support](https://www.oakhampton.ai/automation-services/support-plans/): Monitor AUD 199/month; Maintain AUD 499/month; Managed Agent AUD 999/month plus usage.
+
+## Operating examples
+- [Location Oak](https://location.oakhampton.ai): location-evidence commerce, intake, source ledger and validated delivery.
+- [Site Operator / CartAgent](https://www.cartagent.store): WooCommerce assistance, operations and agent commerce.
+- [Trade Intel](https://trading.oakhampton.ai/site): evidence-backed market research, rolling evaluation, staged tickets and connector controls.
+- [Operating examples in Markdown](https://www.oakhampton.ai/automation-services/operating-examples.md)
+
+## Trust and terms
+- [Security and status](https://www.oakhampton.ai/automation-services/security/)
+- [Privacy](https://www.oakhampton.ai/automation-services/privacy.html)
+- [Service terms](https://www.oakhampton.ai/automation-services/terms.html)
+
+## Pricing policy
+Published prices include Australian GST. The final scope, deliverables and acceptance checks are confirmed before work begins.
+
+## Payments and intake
+Card payments use Stripe Checkout in AUD. Direct USDC payments use native USDC on Base and require on-chain verification. Paid document intake unlocks only after verified payment.
+
+## Examples
+Representative demonstrations use synthetic or public data. Named case studies identify the customer.
+
+## Contact
+customerservice@oakhampton.ai

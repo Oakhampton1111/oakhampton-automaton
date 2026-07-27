@@ -1,0 +1,3 @@
+document_id,supplier,invoice_number,subtotal,gst,total,po_reference,status
+DOC-001,Northstar Freight,NF-10482,1250.00,125.00,1375.00,PO-8841,validated
+DOC-002,Metro Warehousing,MW-7719,840.00,84.00,924.00,PO-8890,review

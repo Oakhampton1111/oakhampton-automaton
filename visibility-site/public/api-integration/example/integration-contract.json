@@ -1,0 +1,15 @@
+{
+  "event": "deal.won",
+  "version": "1.0",
+  "required": [
+    "deal_id",
+    "company_id",
+    "value",
+    "owner"
+  ],
+  "idempotency": "deal_id:version",
+  "acceptance": {
+    "max_reconciliation_minutes": 15,
+    "duplicate_projects": 0
+  }
+}

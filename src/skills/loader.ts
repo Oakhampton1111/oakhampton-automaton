@@ -190,3 +190,9 @@ function resolveHome(p: string): string {
   }
   return p;
 }
+
+/** Select only task-relevant skills to reduce context cost and instruction dilution. */
+export function selectRelevantSkills(skills:Skill[],taskTags:string[],limit=4):Skill[] {
+ const terms=new Set(taskTags.map(v=>v.toLowerCase().trim()).filter(Boolean));
+ return skills.filter(s=>s.enabled).map(skill=>({skill,score:[...terms].filter(t=>(skill.name+" "+skill.description).toLowerCase().includes(t)).length})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.skill.name.localeCompare(b.skill.name)).slice(0,Math.max(0,limit)).map(x=>x.skill);
+}

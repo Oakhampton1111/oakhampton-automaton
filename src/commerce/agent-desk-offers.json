@@ -1,0 +1,92 @@
+{
+  "automation-diagnosis": {
+    "name": "Automation Diagnosis",
+    "checkoutName": "Automation Diagnosis - GST included",
+    "amountAudCents": 49500,
+    "usdcCents": 32670,
+    "billing": "once",
+    "leadTime": "Usually 2 business days",
+    "conciergeDescription": "Map one manual process and identify the smallest useful automation",
+    "keywords": ["manual", "diagnos", "process", "assess", "plan"]
+  },
+  "workflow-repair": {
+    "name": "Workflow Repair",
+    "checkoutName": "Workflow Repair - GST included",
+    "amountAudCents": 99500,
+    "usdcCents": 65670,
+    "billing": "once",
+    "leadTime": "Usually 2–5 business days",
+    "conciergeDescription": "Repair an n8n, Make, Zapier, webhook or API workflow",
+    "keywords": ["workflow", "n8n", "make", "zapier", "webhook", "retry"]
+  },
+  "openclaw-deployment": {
+    "name": "OpenClaw Production Recovery",
+    "checkoutName": "OpenClaw Production Recovery - GST included",
+    "amountAudCents": 99500,
+    "usdcCents": 65671,
+    "billing": "once",
+    "leadTime": "Usually 2–5 business days",
+    "conciergeDescription": "Recover an OpenClaw, Docker, connector, routing or VPS deployment",
+    "keywords": ["openclaw", "docker", "vps", "connector", "routing"]
+  },
+  "document-automation": {
+    "name": "Document Automation Pilot",
+    "checkoutName": "Document Automation Pilot - GST included",
+    "amountAudCents": 149500,
+    "usdcCents": 98670,
+    "billing": "once",
+    "leadTime": "Usually 5–10 business days",
+    "conciergeDescription": "Automate PDF, invoice, spreadsheet and document extraction workflows",
+    "keywords": ["document", "pdf", "invoice", "extract", "spreadsheet", "ocr"]
+  },
+  "api-integration": {
+    "name": "API Integration Pilot",
+    "checkoutName": "API Integration Pilot - GST included",
+    "amountAudCents": 149500,
+    "usdcCents": 98671,
+    "billing": "once",
+    "leadTime": "Usually 5–10 business days",
+    "conciergeDescription": "Connect CRMs, email, storage, databases and internal tools",
+    "keywords": ["api", "integrat", "crm", "hubspot", "salesforce", "database"]
+  },
+  "custom-agent": {
+    "name": "Custom Agent Prototype",
+    "checkoutName": "Custom Agent Prototype - GST included",
+    "amountAudCents": 199500,
+    "usdcCents": 131670,
+    "billing": "once",
+    "leadTime": "Usually 10–15 business days",
+    "conciergeDescription": "Prototype a persistent research, monitoring or operational agent",
+    "keywords": ["agent", "monitor", "research", "autonomous", "customer service"]
+  },
+  "support-monitor": {
+    "name": "Monitor Support Plan",
+    "checkoutName": "Monitor Support Plan - GST included",
+    "amountAudCents": 19900,
+    "usdcCents": 0,
+    "billing": "monthly",
+    "leadTime": "Monthly",
+    "conciergeDescription": "Monitoring and monthly evidence for one agreed workflow",
+    "keywords": ["monitor", "health", "monthly", "support"]
+  },
+  "support-maintain": {
+    "name": "Maintain Support Plan",
+    "checkoutName": "Maintain Support Plan - GST included",
+    "amountAudCents": 49900,
+    "usdcCents": 0,
+    "billing": "monthly",
+    "leadTime": "Monthly",
+    "conciergeDescription": "Monitoring, dependency review and limited repairs or changes",
+    "keywords": ["maintain", "repair", "dependency", "support"]
+  },
+  "support-managed": {
+    "name": "Managed Agent Support Plan",
+    "checkoutName": "Managed Agent Support Plan - GST included",
+    "amountAudCents": 99900,
+    "usdcCents": 0,
+    "billing": "monthly",
+    "leadTime": "Monthly",
+    "conciergeDescription": "Active operation, evaluation and incident handling for one agent",
+    "keywords": ["managed", "agent", "operate", "incident", "support"]
+  }
+}

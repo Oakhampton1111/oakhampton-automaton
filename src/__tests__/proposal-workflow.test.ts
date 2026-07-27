@@ -1,0 +1,10 @@
+import {describe,expect,it} from "vitest";
+import {critiqueProposal,draftProposal,reviseProposal} from "../commerce/proposal-workflow.js";
+const o:any={platformId:"web3-career",sourceId:"7",url:"https://web3.career/apply/7",language:"en",title:"TypeScript API integration",body:"Build an API with tests and documented requirements.",budgetCents:50000,currency:"USD",metadata:{acceptanceCriteria:["tests pass"],attributionRequired:true,attributionText:"web3.career"}};
+const q:any={eligible:true,skillId:"software",reasons:[],routing:{providerId:"openai",modelId:"premium",estimatedQualityBps:9800,estimatedCostCents:80,requiresCritic:true,rationale:[]},estimatedProductionCents:0,estimatedMarginCents:0,acceptanceTestable:true};
+describe("proposal workflow",()=>{
+ it("drafts a specific bounded proposal preserving attribution",()=>{const p=draftProposal(o,q);expect(p.sourceUrl).toBe(o.url);expect(p.attribution?.url).toBe(o.url);expect(p.body).toContain("reviewed and validated");expect(critiqueProposal(p,o,q).passed).toBe(true);});
+ it("refuses unqualified opportunities",()=>expect(()=>draftProposal(o,{...q,eligible:false})).toThrow("OPPORTUNITY_NOT_QUALITY_QUALIFIED"));
+ it("detects altered links, price, claims, and authority omissions",()=>{const p=draftProposal(o,q);const bad={...p,sourceUrl:"https://evil.test",priceCents:1,body:"Guaranteed perfect result"};const c=critiqueProposal(bad,o,q);expect(c.passed).toBe(false);expect(c.failures).toContain("SOURCE_URL_CHANGED");expect(c.failures).toContain("UNSUPPORTED_CLAIM");});
+ it("repairs mechanical critic failures without changing source terms",()=>{const p=draftProposal(o,q);const bad={...p,body:p.body.replace("reviewed and validated","checked").replace("without the required authorization","later")};const c=critiqueProposal(bad,o,q);const fixed=reviseProposal(bad,c,o);expect(fixed.version).toBe(2);expect(fixed.sourceUrl).toBe(o.url);expect(fixed.priceCents).toBe(p.priceCents);expect(critiqueProposal(fixed,o,q).failures).not.toContain("QUALITY_ASSURANCE_UNSTATED");});
+});

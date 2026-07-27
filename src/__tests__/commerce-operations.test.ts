@@ -1,0 +1,11 @@
+import {describe,expect,it} from "vitest";
+import {CustomerCRM,FulfilmentRegistry,SettlementLedger,capacityDecision} from "../commerce/index.js";
+describe("commerce operations",()=>{
+ it("tracks stages",()=>{const c=new CustomerCRM();c.upsert({id:"1",platformId:"upwork",language:"en",stage:"lead",revisionCount:0});c.transition("1","qualified");expect(c.get("1")?.stage).toBe("qualified")});
+ it("does not reactivate suppressed customers",()=>{const c=new CustomerCRM();c.upsert({id:"1",platformId:"owned",language:"en",stage:"suppressed",revisionCount:0});expect(()=>c.transition("1","lead")).toThrow(/suppressed/)});
+ it("rejects duplicate harnesses",()=>{const r=new FulfilmentRegistry();const h={id:"csv",requiredInputs:["sample"],acceptanceEvidence:["reconciliation"],maximumRevisions:1};r.register(h);expect(()=>r.register(h)).toThrow(/duplicate/)});
+ it("spawns from profit and queue demand",()=>expect(capacityDecision({activeOrders:2,queueDepth:8,workers:1,settledProfitCents:50000,refundRateBps:100,complaintRateBps:0},{maximumOrdersPerWorker:5,queueDepthPerNewWorker:5,minimumProfitPerNewWorkerCents:20000,maximumRefundRateBps:1000,maximumComplaintRateBps:100,maximumWorkers:3})).toBe("spawn"));
+ it("pauses on quality collapse",()=>expect(capacityDecision({activeOrders:1,queueDepth:20,workers:1,settledProfitCents:999999,refundRateBps:5000,complaintRateBps:0},{maximumOrdersPerWorker:5,queueDepthPerNewWorker:5,minimumProfitPerNewWorkerCents:20000,maximumRefundRateBps:1000,maximumComplaintRateBps:100,maximumWorkers:3})).toBe("pause"));
+ it("counts settled revenue once",()=>{const l=new SettlementLedger();expect(l.record({eventId:"e",grossCents:30000,refundsCents:1000,chargebacksCents:0,platformFeesCents:3000,acquisitionCents:500,fulfilmentCents:5000,currency:"USD",settled:true})).toBe(20500);expect(()=>l.record({eventId:"e",grossCents:1,refundsCents:0,chargebacksCents:0,platformFeesCents:0,acquisitionCents:0,fulfilmentCents:0,currency:"USD",settled:true})).toThrow(/duplicate/)});
+ it("rejects unrealised revenue",()=>expect(()=>new SettlementLedger().record({eventId:"x",grossCents:30000,refundsCents:0,chargebacksCents:0,platformFeesCents:0,acquisitionCents:0,fulfilmentCents:0,currency:"USD",settled:false})).toThrow(/unsettled/));
+});

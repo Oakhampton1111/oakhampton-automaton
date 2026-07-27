@@ -1,0 +1,2 @@
+﻿import fs from "node:fs";import path from "node:path";import {buildOfferSite} from "../src/economic/offer-site.js";
+const out=process.argv[2]??"data/offer-site";const intake=process.env.AUTOMATON_PUBLIC_INTAKE_URL??"/v1/intake";for(const f of buildOfferSite({intakeUrl:intake,campaignPrefix:"owned-",contactEmail:"seth@oakhampton.ai"})){const p=path.join(out,f.path);fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,f.content);}console.log(`built ${out}`);

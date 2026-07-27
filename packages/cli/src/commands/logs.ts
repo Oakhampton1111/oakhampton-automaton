@@ -5,8 +5,8 @@
  */
 
 import chalk from "chalk";
-import { loadConfig, resolvePath } from "@conway/automaton/config.js";
-import { createDatabase } from "@conway/automaton/state/database.js";
+import { loadConfig, resolvePath } from "@oakhampton/automaton/config.js";
+import { createDatabase } from "@oakhampton/automaton/state/database.js";
 
 const accent = chalk.rgb(131, 127, 255);
 

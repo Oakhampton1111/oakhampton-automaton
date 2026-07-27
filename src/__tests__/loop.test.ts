@@ -19,6 +19,8 @@ import {
 } from "./mocks.js";
 import type { AutomatonDatabase, AgentTurn, AgentState } from "../types.js";
 
+vi.mock("../registry/discovery.js", () => ({ discoverAgents: vi.fn(async () => []), searchAgents: vi.fn(async () => []) }));
+
 describe("Agent Loop", () => {
   let db: AutomatonDatabase;
   let conway: MockConwayClient;
@@ -191,7 +193,7 @@ describe("Agent Loop", () => {
       (t) => t.input?.includes("Hello from another agent!"),
     );
     expect(inboxTurn).toBeDefined();
-    expect(inboxTurn!.inputSource).toBe("agent");
+    expect(inboxTurn!.inputSource).toBe("inbox");
   });
 
   it("MAX_TOOL_CALLS_PER_TURN limits tool calls", async () => {
@@ -800,6 +802,7 @@ describe("Agent Loop", () => {
   });
 
   it("sleeps early when delegated work is active and no self-assigned parent task remains", async () => {
+    (config as any).securityConfig = { profile: "legacy" };
     const tickSpy = vi.spyOn(Orchestrator.prototype, "tick").mockResolvedValue({
       phase: "executing",
       tasksAssigned: 0,
@@ -828,6 +831,7 @@ describe("Agent Loop", () => {
   });
 
   it("does not sleep early when the parent has a self-assigned task", async () => {
+    (config as any).securityConfig = { profile: "legacy" };
     db.raw.prepare(
       "INSERT INTO goals (id, title, description, status, created_at) VALUES (?, ?, ?, ?, ?)",
     ).run("goal-self", "Self goal", "Self goal description", "active", new Date().toISOString());

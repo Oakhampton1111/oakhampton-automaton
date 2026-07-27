@@ -75,7 +75,37 @@ export interface AutomatonConfig {
   rpcUrl?: string;
   /** Chain type for this automaton. Defaults to "evm" if absent. */
   chainType?: ChainType;
+  /** Enforceable runtime capability boundaries. Hardened is the safe default. */
+  securityConfig?: SecurityConfig;
+  /** External integrations are disabled by default and remain staging-only. */
+  integrationFlags?: import("./integrations/types.js").IntegrationFlags;
 }
+
+export interface SecurityConfig {
+  /** Hardened fails closed. Legacy preserves upstream behaviour for migration only. */
+  profile: "hardened" | "legacy";
+  /** A credentialless sandbox used for model-controlled shell and file operations. */
+  executionSandboxId?: string;
+  /** Public port exposure is disabled unless explicitly enabled. */
+  allowPublicPorts: boolean;
+  /** Direct edits to the credential-bearing runtime are disabled by default. */
+  allowRuntimeSelfModification: boolean;
+  /** Package, MCP and skill installation are disabled by default. */
+  allowRuntimeExtensions: boolean;
+  /** Child creation and funding require an explicit operator decision by default. */
+  allowChildReplication: boolean;
+  /** Agent-initiated signing/spend is disabled; creator-originated actions remain policy checked. */
+  allowAgentFinancialActions: boolean;
+}
+
+export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
+  profile: "hardened",
+  allowPublicPorts: false,
+  allowRuntimeSelfModification: false,
+  allowRuntimeExtensions: false,
+  allowChildReplication: false,
+  allowAgentFinancialActions: false,
+};
 
 export const DEFAULT_CONFIG: Partial<AutomatonConfig> = {
   conwayApiUrl: "https://api.conway.tech",
@@ -120,7 +150,11 @@ export type InputSource =
   | "creator"
   | "agent"
   | "system"
-  | "wakeup";
+  | "wakeup"
+  | "inbox"
+  | "social"
+  | "webhook"
+  | "external";
 
 export interface ToolCallResult {
   id: string;
@@ -168,6 +202,8 @@ export interface ToolContext {
   config: AutomatonConfig;
   db: AutomatonDatabase;
   conway: ConwayClient;
+  /** Credentialless execution plane. Never points at the control-plane sandbox. */
+  executionConway?: ConwayClient;
   inference: InferenceClient;
   social?: SocialClientInterface;
 }

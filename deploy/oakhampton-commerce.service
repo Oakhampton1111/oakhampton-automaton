@@ -1,0 +1,26 @@
+[Unit]
+Description=Oakhampton Always-On Commerce Supervisor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/clawdbot/.openclaw/workspace/projects/oakhampton-automaton
+EnvironmentFile=-/opt/oakhampton-automaton.env
+Environment=AUTOMATON_COMMERCE_MODE=shadow
+Environment=AUTOMATON_DB_PATH=/home/clawdbot/.openclaw/workspace/projects/oakhampton-automaton/data/commerce.db
+ExecStart=/usr/bin/node dist/commerce/daemon-entry.js
+Restart=always
+RestartSec=15
+StartLimitIntervalSec=600
+StartLimitBurst=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/clawdbot/.openclaw/workspace/projects/oakhampton-automaton/data
+MemoryMax=1G
+CPUQuota=100%
+
+[Install]
+WantedBy=default.target

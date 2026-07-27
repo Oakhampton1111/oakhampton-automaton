@@ -1,0 +1,71 @@
+{
+  "currency": "AUD",
+  "tax": "Published prices include Australian GST.",
+  "offers": [
+    {
+      "id": "automation-diagnosis",
+      "name": "Automation Diagnosis",
+      "checkout_price": "AUD $495",
+      "billing": "once",
+      "delivery_target": "Usually 2 business days"
+    },
+    {
+      "id": "workflow-repair",
+      "name": "Workflow Repair",
+      "checkout_price": "AUD $995",
+      "billing": "once",
+      "delivery_target": "Usually 2–5 business days"
+    },
+    {
+      "id": "openclaw-deployment",
+      "name": "OpenClaw Production Recovery",
+      "checkout_price": "AUD $995",
+      "billing": "once",
+      "delivery_target": "Usually 2–5 business days"
+    },
+    {
+      "id": "document-automation",
+      "name": "Document Automation Pilot",
+      "checkout_price": "AUD $1,495",
+      "billing": "once",
+      "delivery_target": "Usually 5–10 business days"
+    },
+    {
+      "id": "api-integration",
+      "name": "API Integration Pilot",
+      "checkout_price": "AUD $1,495",
+      "billing": "once",
+      "delivery_target": "Usually 5–10 business days"
+    },
+    {
+      "id": "custom-agent",
+      "name": "Custom Agent Prototype",
+      "checkout_price": "AUD $1,995",
+      "billing": "once",
+      "delivery_target": "Usually 10–15 business days"
+    },
+    {
+      "id": "support-monitor",
+      "name": "Monitor Support Plan",
+      "checkout_price": "AUD $199",
+      "billing": "monthly",
+      "delivery_target": "Monthly"
+    },
+    {
+      "id": "support-maintain",
+      "name": "Maintain Support Plan",
+      "checkout_price": "AUD $499",
+      "billing": "monthly",
+      "delivery_target": "Monthly"
+    },
+    {
+      "id": "support-managed",
+      "name": "Managed Agent Support Plan",
+      "checkout_price": "AUD $999",
+      "billing": "monthly",
+      "delivery_target": "Monthly"
+    }
+  ],
+  "contact": "customerservice@oakhampton.ai",
+  "scope": "The final scope, deliverables and acceptance checks are confirmed before work begins."
+}

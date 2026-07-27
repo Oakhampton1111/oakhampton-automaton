@@ -6,12 +6,13 @@
 
 import fs from "fs";
 import path from "path";
-import type { AutomatonConfig, TreasuryPolicy, ModelStrategyConfig, SoulConfig } from "./types.js";
-import { DEFAULT_CONFIG, DEFAULT_TREASURY_POLICY, DEFAULT_MODEL_STRATEGY_CONFIG, DEFAULT_SOUL_CONFIG } from "./types.js";
+import type { AutomatonConfig, TreasuryPolicy, ModelStrategyConfig, SoulConfig, SecurityConfig } from "./types.js";
+import { DEFAULT_CONFIG, DEFAULT_TREASURY_POLICY, DEFAULT_MODEL_STRATEGY_CONFIG, DEFAULT_SOUL_CONFIG, DEFAULT_SECURITY_CONFIG } from "./types.js";
 import { getAutomatonDir } from "./identity/wallet.js";
 import { loadApiKeyFromConfig } from "./identity/provision.js";
 import { createLogger } from "./observability/logger.js";
 import type { ChainType } from "./identity/chain.js";
+import { DEFAULT_INTEGRATION_FLAGS } from "./integrations/types.js";
 
 const logger = createLogger("config");
 const CONFIG_FILENAME = "automaton.json";
@@ -61,6 +62,21 @@ export function loadConfig(): AutomatonConfig | null {
       ...(raw.soulConfig ?? {}),
     };
 
+    const integrationFlags = {
+      ...DEFAULT_INTEGRATION_FLAGS,
+      ...(raw.integrationFlags ?? {}),
+      github: { ...DEFAULT_INTEGRATION_FLAGS.github, ...(raw.integrationFlags?.github ?? {}) },
+      gmail: { ...DEFAULT_INTEGRATION_FLAGS.gmail, ...(raw.integrationFlags?.gmail ?? {}), draftsOnly: true as const },
+      stripe: { ...DEFAULT_INTEGRATION_FLAGS.stripe, ...(raw.integrationFlags?.stripe ?? {}), environment: "sandbox" as const },
+      evaluation: { ...DEFAULT_INTEGRATION_FLAGS.evaluation, ...(raw.integrationFlags?.evaluation ?? {}) },
+      externalEffectsEnabled: false as const,
+    };
+
+    const securityConfig: SecurityConfig = {
+      ...DEFAULT_SECURITY_CONFIG,
+      ...(raw.securityConfig ?? {}),
+    };
+
     return {
       ...DEFAULT_CONFIG,
       ...raw,
@@ -72,6 +88,8 @@ export function loadConfig(): AutomatonConfig | null {
       treasuryPolicy,
       modelStrategy,
       soulConfig,
+      securityConfig,
+      integrationFlags,
       chainType: raw.chainType || "evm",
     } as AutomatonConfig;
   } catch {
@@ -95,6 +113,7 @@ export function saveConfig(config: AutomatonConfig): void {
     treasuryPolicy: config.treasuryPolicy ?? DEFAULT_TREASURY_POLICY,
     modelStrategy: config.modelStrategy ?? DEFAULT_MODEL_STRATEGY_CONFIG,
     soulConfig: config.soulConfig ?? DEFAULT_SOUL_CONFIG,
+    securityConfig: config.securityConfig ?? DEFAULT_SECURITY_CONFIG,
   };
   fs.writeFileSync(configPath, JSON.stringify(toSave, null, 2), {
     mode: 0o600,
@@ -156,6 +175,7 @@ export function createConfig(params: {
     maxChildren: DEFAULT_CONFIG.maxChildren || 3,
     parentAddress: params.parentAddress,
     treasuryPolicy: params.treasuryPolicy ?? DEFAULT_TREASURY_POLICY,
+    securityConfig: DEFAULT_SECURITY_CONFIG,
     chainType: params.chainType || "evm",
   };
 }

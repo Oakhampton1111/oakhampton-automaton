@@ -1,0 +1,4 @@
+state/backups/
+state/weekly_reports/
+state/deploy-stage/
+state/*.log

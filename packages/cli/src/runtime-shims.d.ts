@@ -1,4 +1,4 @@
-declare module "@conway/automaton/config.js" {
+declare module "@oakhampton/automaton/config.js" {
   export interface AutomatonCliConfig {
     name: string;
     walletAddress: string;
@@ -17,7 +17,7 @@ declare module "@conway/automaton/config.js" {
   export function resolvePath(p: string): string;
 }
 
-declare module "@conway/automaton/state/database.js" {
+declare module "@oakhampton/automaton/state/database.js" {
   export interface CliToolCall {
     name: string;
     result: string;

@@ -25,6 +25,16 @@ import { createLogger } from "../observability/logger.js";
 
 const logger = createLogger("tools");
 
+function getExecutionClient(ctx: ToolContext) {
+  if (ctx.executionConway) return ctx.executionConway;
+  // Hand-constructed legacy contexts are kept for migration and tests. Loaded
+  // production config always receives the hardened default in config.ts.
+  if (!ctx.config.securityConfig || ctx.config.securityConfig.profile === "legacy") {
+    return ctx.conway;
+  }
+  return undefined;
+}
+
 // ─── Path Confinement ─────────────────────────────────────────
 // write_file is restricted to the sandbox home directory tree.
 // The sandbox home is /root for both local and remote execution.
@@ -132,11 +142,15 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
         required: ["command"],
       },
       execute: async (args, ctx) => {
+        const execution = getExecutionClient(ctx);
+        if (!execution) {
+          return "Blocked: A separate credentialless execution sandbox is required.";
+        }
         const command = args.command as string;
         const forbidden = isForbiddenCommand(command, ctx.identity.sandboxId);
         if (forbidden) return forbidden;
 
-        const result = await ctx.conway.exec(
+        const result = await execution.exec(
           command,
           (args.timeout as number) || 30000,
         );
@@ -157,6 +171,10 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
         required: ["path", "content"],
       },
       execute: async (args, ctx) => {
+        const execution = getExecutionClient(ctx);
+        if (!execution) {
+          return "Blocked: A separate credentialless execution sandbox is required.";
+        }
         const filePath = args.path as string;
         // Path confinement: restrict writes to sandbox home directory
         const confined = confinePathToSandbox(filePath);
@@ -166,7 +184,7 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
         if (isProtectedFile(confined)) {
           return "Blocked: Cannot overwrite protected file. This is a hard-coded safety invariant.";
         }
-        await ctx.conway.writeFile(confined, args.content as string);
+        await execution.writeFile(confined, args.content as string);
         return `File written: ${confined}`;
       },
     },
@@ -183,6 +201,10 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
         required: ["path"],
       },
       execute: async (args, ctx) => {
+        const execution = getExecutionClient(ctx);
+        if (!execution) {
+          return "Blocked: A separate credentialless execution sandbox is required.";
+        }
         const filePath = args.path as string;
         // Block reads of sensitive files (wallet, env, config secrets)
         const basename = filePath.split("/").pop() || "";
@@ -196,10 +218,10 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
           return "Blocked: Cannot read sensitive file. This protects credentials and secrets.";
         }
         try {
-          return await ctx.conway.readFile(filePath);
+          return await execution.readFile(filePath);
         } catch {
           // Conway files/read API may be broken — fall back to exec(cat)
-          const result = await ctx.conway.exec(
+          const result = await execution.exec(
             `cat ${escapeShellArg(filePath)}`,
             30_000,
           );
@@ -224,7 +246,11 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
         required: ["port"],
       },
       execute: async (args, ctx) => {
-        const info = await ctx.conway.exposePort(args.port as number);
+        const execution = getExecutionClient(ctx);
+        if (!execution) {
+          return "Blocked: A separate credentialless execution sandbox is required.";
+        }
+        const info = await execution.exposePort(args.port as number);
         return `Port ${info.port} exposed at: ${info.publicUrl}`;
       },
     },
@@ -241,7 +267,11 @@ export function createBuiltinTools(sandboxId: string): AutomatonTool[] {
         required: ["port"],
       },
       execute: async (args, ctx) => {
-        await ctx.conway.removePort(args.port as number);
+        const execution = getExecutionClient(ctx);
+        if (!execution) {
+          return "Blocked: A separate credentialless execution sandbox is required.";
+        }
+        await execution.removePort(args.port as number);
         return `Port ${args.port} removed`;
       },
     },
@@ -3260,7 +3290,11 @@ function createInstalledToolExecutor(tool: {
     // Generic installed tool — execute via sandbox shell if command is configured
     const command = tool.config?.command as string | undefined;
     if (command) {
-      const result = await ctx.conway.exec(
+      const execution = getExecutionClient(ctx);
+      if (!execution) {
+        return "Blocked: Installed tools require a separate credentialless execution sandbox.";
+      }
+      const result = await execution.exec(
         `${command} ${escapeShellArg(JSON.stringify(args))}`,
         30000,
       );
@@ -3313,6 +3347,20 @@ export async function executeTool(
       result: "",
       durationMs: 0,
       error: `Unknown tool: ${toolName}`,
+    };
+  }
+
+  if (
+    context.config.securityConfig?.profile === "hardened" &&
+    (!policyEngine || !turnContext)
+  ) {
+    return {
+      id: ulid(),
+      name: toolName,
+      arguments: args,
+      result: "",
+      durationMs: Date.now() - startTime,
+      error: "Policy denied: POLICY_ENGINE_REQUIRED — hardened mode never executes tools without policy context",
     };
   }
 

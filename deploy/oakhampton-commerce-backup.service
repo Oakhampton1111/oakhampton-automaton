@@ -1,0 +1,7 @@
+[Unit]
+Description=Back up Oakhampton commerce state
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/opt/oakhampton-automaton.env
+ExecStart=/home/clawdbot/.openclaw/workspace/projects/oakhampton-automaton/scripts/commerce-backup.sh

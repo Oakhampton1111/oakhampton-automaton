@@ -1,0 +1,6 @@
+import {describe,expect,it} from "vitest"; import {assessOffer,assessWebsiteExperiment,buildHereNowDeploymentManifest} from "../economic/growth-loop.js"; import {GROWTH_SCENARIOS,PAIN_SIGNALS,RECONCILIATION_OFFER,SAFE_GROWTH_POLICY} from "../backtest/growth-fixtures.js";
+describe("demand-to-website economic growth loop",()=>{
+it("accepts supported positive-margin offers",()=>{const r=assessOffer(RECONCILIATION_OFFER,PAIN_SIGNALS,SAFE_GROWTH_POLICY);expect(r.eligible).toBe(true);expect(r.contributionMarginCents).toBeGreaterThan(0)});
+it("rejects private or unlicensed demand data",()=>{const r=assessOffer({...RECONCILIATION_OFFER,evidenceSignalIds:["r1","private"]},PAIN_SIGNALS,SAFE_GROWTH_POLICY);expect(r.eligible).toBe(false);expect(r.reasons).toContain("DATA_USE_NOT_PERMITTED")});
+it.each(GROWTH_SCENARIOS)("handles $id",({experiment,queueDepth,expected,spawn})=>{const r=assessWebsiteExperiment(experiment,RECONCILIATION_OFFER,SAFE_GROWTH_POLICY,queueDepth);expect(r.decision).toBe(expected);expect(r.maySpawnWorker).toBe(spawn)});
+it("keeps deployment behind approval",()=>expect(buildHereNowDeploymentManifest(RECONCILIATION_OFFER)).toMatchObject({provider:"here.now",externalEffect:true,requiresApproval:true}));});
